@@ -1,0 +1,22 @@
+{
+  "appAuth": {
+    "username": "admin",
+    "password": "admin123"
+  },
+  "paylink": {
+    "baseUrl": "https://inst2.paylink.com.ua/app",
+    "login": "v.chuhunov@tascombank.com.ua",
+    "password": "cfn18PYH"
+  },
+  "google": {
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/1rDrUzZJ8ooLCeA4435GNXRfljSi5q6aaVMorUOf5K_E/edit?gid=0#gid=0",
+    "keyFile": "./key.json"
+  },
+  "output": {
+    "resultDir": "./results",
+    "defaultFileName": ""
+  },
+  "browser": {
+    "headless": true
+  }
+}

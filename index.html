@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>УЗ возврат</title>
+  <style>
+    :root {
+      --bg: #eef5ff;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: #ffffff;
+      --line: rgba(23, 74, 153, 0.12);
+      --line-strong: rgba(23, 74, 153, 0.22);
+      --text: #10213d;
+      --muted: #5d7094;
+      --blue: #175bf6;
+      --blue-strong: #0f43bb;
+      --blue-soft: #eaf1ff;
+      --success: #16744f;
+      --danger: #c03939;
+      --warning: #a56a09;
+      --shadow: 0 24px 80px rgba(16, 33, 61, 0.12);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "SF Pro Display", "Segoe UI Variable Display", "Inter", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(87, 154, 255, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(23, 91, 246, 0.14), transparent 28%),
+        linear-gradient(180deg, #f7fbff 0%, #eef5ff 100%);
+    }
+
+    .app {
+      width: min(1380px, calc(100% - 28px));
+      margin: 18px auto 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .topbar,
+    .shell,
+    .toast {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 14px;
+      z-index: 5;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .shell {
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 28px 28px 20px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(23, 91, 246, 0.12), rgba(255, 255, 255, 0.82)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 54px);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+    }
+
+    .column {
+      padding: 22px 24px 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .column + .column {
+      border-left: 1px solid var(--line);
+      background: rgba(245, 249, 255, 0.76);
+    }
+
+    .card {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .hint a {
+      color: var(--blue-strong);
+      text-decoration: none;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      padding: 13px 14px;
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(23, 91, 246, 0.7);
+      box-shadow: 0 0 0 4px rgba(23, 91, 246, 0.12);
+    }
+
+    input[type="file"] {
+      padding: 10px 12px;
+      background: var(--blue-soft);
+    }
+
+    textarea {
+      min-height: 170px;
+      resize: vertical;
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 12px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      background: #fff;
+      font-weight: 600;
+    }
+
+    .check input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    button:hover:not(:disabled) { transform: translateY(-1px); }
+    button:disabled { opacity: 0.6; cursor: wait; }
+
+    .primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-strong));
+      color: white;
+    }
+
+    .secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line-strong);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px 14px;
+      background: #f8fbff;
+      line-height: 1.5;
+    }
+
+    .status.success { color: var(--success); border-color: rgba(22, 116, 79, 0.22); background: rgba(232, 250, 241, 0.88); }
+    .status.error { color: var(--danger); border-color: rgba(192, 57, 57, 0.22); background: rgba(255, 239, 239, 0.94); }
+    .status.warning { color: var(--warning); border-color: rgba(165, 106, 9, 0.22); background: rgba(255, 247, 228, 0.94); }
+
+    .scroll {
+      max-height: 270px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .scroll.tall {
+      max-height: 360px;
+    }
+
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .list li {
+      border: 1px solid rgba(23, 74, 153, 0.1);
+      border-radius: 16px;
+      padding: 14px;
+      background: #f8fbff;
+    }
+
+    .job-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .job-meta {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .job-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--blue-strong);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(23, 91, 246, 0.1);
+      margin-top: 12px;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), #6da0ff);
+    }
+
+    .toast {
+      position: sticky;
+      top: 96px;
+      z-index: 4;
+      padding: 16px 18px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(23, 91, 246, 0.1), rgba(255, 255, 255, 0.96));
+    }
+
+    .toast.show { display: flex; }
+
+    .toast-title {
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .toast-text {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 31, 72, 0.34);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 20;
+    }
+
+    .modal {
+      width: min(980px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      background: white;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .modal.small {
+      width: min(430px, 100%);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .modal h2 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.04em;
+    }
+
+    .footer {
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      padding: 4px 0 10px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .content { grid-template-columns: 1fr; }
+      .column + .column { border-left: 0; border-top: 1px solid var(--line); }
+    }
+
+    @media (max-width: 760px) {
+      .app { width: calc(100% - 16px); }
+      .topbar, .hero, .column { padding-left: 16px; padding-right: 16px; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .toast { top: 136px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="topbar">
+      <div class="brand">
+        <h1>УЗ возврат</h1>
+      </div>
+      <div class="top-actions">
+        <div class="pill" id="dateTimePill">--:--:--</div>
+        <div class="pill">Користувач: <strong id="currentUser">-</strong></div>
+        <button class="secondary" id="openSettingsBtn" type="button">Налаштування</button>
+        <button class="secondary" id="logoutBtn" type="button">Вийти</button>
+      </div>
+    </section>
+
+    <section class="toast" id="jobToast">
+      <div>
+        <div class="toast-title" id="jobToastTitle">Обробка триває</div>
+        <div class="toast-text" id="jobToastText">Очікування статусу...</div>
+      </div>
+      <div class="pill" id="jobToastProgress">0%</div>
+    </section>
+
+    <section class="shell">
+      <div class="hero">
+        <!-- <h2>УЗ возврат</h2> -->
+      </div>
+
+      <div class="content">
+        <section class="column">
+          <div class="card">
+            <div class="card-head">
+              <h3>Нове завдання</h3>
+            </div>
+            <form id="jobForm">
+              <div class="grid-3">
+                <div class="field">
+                  <label for="startDate">Дата від</label>
+                  <div class="hint">Початок діапазону аркушів. Формат аркушів у таблиці має бути `ДД.ММ.ГГГГ`.</div>
+                  <input id="startDate" type="date" required>
+                </div>
+
+                <div class="field">
+                  <label for="endDate">Дата до</label>
+                  <div class="hint">Кінець діапазону. Аркуші між датами будуть взяті включно.</div>
+                  <input id="endDate" type="date" required>
+                </div>
+
+                <div class="field">
+                  <label for="fileName">Назва файлу</label>
+                  <div class="hint">Можна залишити порожнім. Тоді назва згенерується автоматично з дат і часу.</div>
+                  <input id="fileName" type="text" placeholder="Наприклад: march-refunds.xlsx">
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="primary" id="runBtn" type="submit">Запустити у фоні</button>
+                <button class="secondary" id="refreshBtn" type="button">Оновити дані</button>
+                <button class="secondary" id="stopBtn" type="button">Зупинити генерацію</button>
+              </div>
+            </form>
+
+            <div id="jobStatus" class="status" style="margin-top:14px;">Завантажуємо дані...</div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Логи завдання</h3>
+              <div class="pill" id="logJobLabel">Немає активного завдання</div>
+            </div>
+            <div class="scroll tall">
+              <textarea id="jobLogs" readonly></textarea>
+            </div>
+          </div>
+        </section>
+
+        <aside class="column">
+          <div class="card">
+            <div class="card-head">
+              <h3>Аркуші в таблиці</h3>
+            </div>
+            <p id="sheetRangeText">Перевіряємо діапазон Google Sheets...</p>
+            <div class="scroll" style="margin-top:14px;">
+              <ul class="list" id="sheetList"></ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Черга та готові файли</h3>
+            </div>
+            <p>Готові файли завантажуються напряму кнопкою всередині списку.</p>
+            <div class="scroll tall" style="margin-top:14px;">
+              <ul class="list" id="jobsList"></ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="footer">Автор: Чугунов Василь Васильович</div>
+  </div>
+
+  <div class="overlay hidden" id="loginOverlay">
+    <div class="modal small">
+      <div class="modal-head">
+        <h2>Вхід</h2>
+      </div>
+      <p class="hint" style="margin-bottom:14px;">Проста авторизація для доступу до панелі.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginUsername">Логін</label>
+          <div class="hint">Логін панелі, не Paylink.</div>
+          <input id="loginUsername" type="text" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Пароль</label>
+          <div class="hint">Пароль панелі, не Paylink.</div>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="primary" id="loginBtn" type="submit">Увійти</button>
+      </form>
+      <div id="loginStatus" class="status hidden" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="settingsOverlay">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Налаштування</h2>
+        <button class="secondary" id="closeSettingsBtn" type="button">Закрити</button>
+      </div>
+
+      <form id="settingsForm">
+        <div class="grid-2">
+          <div class="field">
+            <label for="appUsername">Логін панелі</label>
+            <div class="hint">Новий логін для входу в цю адмін-панель.</div>
+            <input id="appUsername" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="appPassword">Пароль панелі</label>
+            <div class="hint">Новий пароль для входу в панель. Якщо хочете змінити, вкажіть новий.</div>
+            <input id="appPassword" type="password" placeholder="Залиште порожнім, щоб не змінювати">
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="paylinkBaseUrl">URL Paylink</label>
+            <div class="hint">Повна адреса панелі Paylink. Зазвичай це щось на кшталт `https://inst2.paylink.com.ua/app`.</div>
+            <input id="paylinkBaseUrl" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="paylinkLogin">Логін Paylink</label>
+            <div class="hint">Логін користувача, під яким скрипт входить у Paylink.</div>
+            <input id="paylinkLogin" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="paylinkPassword">Пароль Paylink</label>
+            <div class="hint">Пароль користувача Paylink для автоматичної авторизації.</div>
+            <input id="paylinkPassword" type="password" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="spreadsheetUrl">Посилання на Google Sheets</label>
+            <div class="hint">Вставляйте повне посилання на таблицю, а не тільки ID.</div>
+            <input id="spreadsheetUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/..." required>
+          </div>
+
+          <div class="field">
+            <label for="keyFile">Шлях до key.json</label>
+            <div class="hint">
+              Де лежить сервісний ключ Google. Інструкція:
+              <a href="https://cloud.google.com/iam/docs/keys-create-delete" target="_blank" rel="noreferrer">як створити JSON-ключ</a>.
+            </div>
+            <input id="keyFile" type="text" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="keyUpload">Завантажити новий key.json</label>
+            <div class="hint">Можна просто вибрати новий JSON-файл, і панель збереже його сама.</div>
+            <input id="keyUpload" type="file" accept=".json,application/json">
+          </div>
+
+          <div class="field">
+            <label for="defaultFileName">Назва файлу за замовчуванням</label>
+            <div class="hint">Необов'язково. Якщо порожньо, назва буде генеруватися автоматично за діапазоном і часом.</div>
+            <input id="defaultFileName" type="text" placeholder="Наприклад: refunds-export.xlsx">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="resultDir">Папка для результатів</label>
+            <div class="hint">Папка, куди будуть зберігатися готові Excel-файли.</div>
+            <input id="resultDir" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="browserHeadless">Режим браузера</label>
+            <div class="hint">Якщо увімкнено, Paylink відкривається приховано. Якщо сайт блокує headless, можна вимкнути.</div>
+            <label class="check">
+              <input id="browserHeadless" type="checkbox">
+              Прихований режим без вікна браузера
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="saveSettingsBtn" type="submit">Зберегти налаштування</button>
+        </div>
+      </form>
+
+      <div id="settingsStatus" class="status hidden" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <script>
+    const loginOverlay = document.getElementById("loginOverlay");
+    const settingsOverlay = document.getElementById("settingsOverlay");
+    const currentUser = document.getElementById("currentUser");
+    const dateTimePill = document.getElementById("dateTimePill");
+    const openSettingsBtn = document.getElementById("openSettingsBtn");
+    const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    const loginForm = document.getElementById("loginForm");
+    const loginUsername = document.getElementById("loginUsername");
+    const loginPassword = document.getElementById("loginPassword");
+    const loginBtn = document.getElementById("loginBtn");
+    const loginStatus = document.getElementById("loginStatus");
+
+    const jobForm = document.getElementById("jobForm");
+    const startDate = document.getElementById("startDate");
+    const endDate = document.getElementById("endDate");
+    const fileName = document.getElementById("fileName");
+    const runBtn = document.getElementById("runBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const jobStatus = document.getElementById("jobStatus");
+    const jobLogs = document.getElementById("jobLogs");
+    const logJobLabel = document.getElementById("logJobLabel");
+
+    const sheetRangeText = document.getElementById("sheetRangeText");
+    const sheetList = document.getElementById("sheetList");
+    const jobsList = document.getElementById("jobsList");
+
+    const settingsForm = document.getElementById("settingsForm");
+    const appUsername = document.getElementById("appUsername");
+    const appPassword = document.getElementById("appPassword");
+    const paylinkBaseUrl = document.getElementById("paylinkBaseUrl");
+    const paylinkLogin = document.getElementById("paylinkLogin");
+    const paylinkPassword = document.getElementById("paylinkPassword");
+    const spreadsheetUrl = document.getElementById("spreadsheetUrl");
+    const keyFile = document.getElementById("keyFile");
+    const keyUpload = document.getElementById("keyUpload");
+    const defaultFileName = document.getElementById("defaultFileName");
+    const resultDir = document.getElementById("resultDir");
+    const browserHeadless = document.getElementById("browserHeadless");
+    const settingsStatus = document.getElementById("settingsStatus");
+
+    const jobToast = document.getElementById("jobToast");
+    const jobToastTitle = document.getElementById("jobToastTitle");
+    const jobToastText = document.getElementById("jobToastText");
+    const jobToastProgress = document.getElementById("jobToastProgress");
+
+    let pollTimer = null;
+    let latestJobs = [];
+    let selectedJobId = null;
+
+    function setStatus(node, message, type) {
+      node.textContent = message;
+      node.className = "status";
+      if (type) node.classList.add(type);
+      node.classList.remove("hidden");
+    }
+
+    function api(url, options = {}) {
+      return fetch(url, {
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        },
+        ...options
+      }).then(async (response) => {
+        const data = response.headers.get("content-type")?.includes("application/json")
+          ? await response.json()
+          : null;
+
+        if (response.status === 401) {
+          loginOverlay.classList.remove("hidden");
+          throw new Error(data?.error || "Потрібна авторизація.");
+        }
+
+        if (!response.ok || (data && data.ok === false)) {
+          throw new Error(data?.error || "Помилка запиту.");
+        }
+
+        return data;
+      });
+    }
+
+    function renderSimpleList(container, items) {
+      container.innerHTML = "";
+      if (!items.length) {
+        const li = document.createElement("li");
+        li.textContent = "Поки порожньо";
+        container.appendChild(li);
+        return;
+      }
+
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        container.appendChild(li);
+      });
+    }
+
+    function formatJobStatus(status) {
+      if (status === "queued") return "У черзі";
+      if (status === "running") return "В роботі";
+      if (status === "done") return "Готово";
+      if (status === "error") return "Помилка";
+      return status || "—";
+    }
+
+    function fillSettings(settings) {
+      appUsername.value = settings.appAuth.username || "";
+      appPassword.value = "";
+      paylinkBaseUrl.value = settings.paylink.baseUrl || "";
+      paylinkLogin.value = settings.paylink.login || "";
+      paylinkPassword.value = settings.paylink.password || "";
+      spreadsheetUrl.value = settings.google.spreadsheetUrl || "";
+      keyFile.value = settings.google.keyFile || "";
+      defaultFileName.value = settings.output.defaultFileName || "";
+      resultDir.value = settings.output.resultDir || "";
+      browserHeadless.checked = Boolean(settings.browser?.headless);
+      currentUser.textContent = settings.appAuth.username || "-";
+    }
+
+    function updateToast(jobs) {
+      const activeJob = jobs.find((job) => job.status === "running" || job.status === "queued");
+
+      if (!activeJob) {
+        jobToast.classList.remove("show");
+        return;
+      }
+
+      jobToast.classList.add("show");
+      jobToastTitle.textContent = activeJob.status === "queued" ? "Завдання у черзі" : "Триває обробка";
+      jobToastText.textContent = (activeJob.statusText || "Очікування") + " • " + activeJob.startDate + " - " + activeJob.endDate;
+      jobToastProgress.textContent = (activeJob.progress || 0) + "%";
+    }
+
+    function renderJobs(jobs) {
+      latestJobs = jobs;
+      jobsList.innerHTML = "";
+
+      if (!jobs.length) {
+        renderSimpleList(jobsList, []);
+        return;
+      }
+
+      jobs.forEach((job) => {
+        const li = document.createElement("li");
+        const progress = Math.max(0, Math.min(100, Number(job.progress || 0)));
+        li.innerHTML =
+          '<div class="job-head"><span>' + job.startDate + ' - ' + job.endDate + '</span><span>' + formatJobStatus(job.status) + '</span></div>' +
+          '<div class="job-meta">' +
+            'Статус: ' + (job.statusText || "—") + '<br>' +
+            'Транзакцій: ' + (job.transactionCount || 0) + '<br>' +
+            'Аркуші: ' + (job.selectedSheets?.length ? job.selectedSheets.join(", ") : "ще не вибрані") +
+            (job.fileName ? '<br>Файл: ' + job.fileName : "") +
+            (job.error ? '<br>Помилка: ' + job.error : "") +
+          '</div>' +
+          '<div class="progress"><span style="width:' + progress + '%"></span></div>';
+
+        li.addEventListener("click", () => showJobLogs(job.id));
+
+        if (job.downloadUrl) {
+          const link = document.createElement("a");
+          link.className = "job-link";
+          link.href = job.downloadUrl;
+          link.textContent = "Завантажити файл";
+          link.addEventListener("click", (event) => event.stopPropagation());
+          li.appendChild(link);
+        }
+
+        if (job.status === "queued" || job.status === "running") {
+          const cancelButton = document.createElement("button");
+          cancelButton.type = "button";
+          cancelButton.className = "secondary";
+          cancelButton.style.marginTop = "10px";
+          cancelButton.textContent = job.status === "running" ? "Зупинити" : "Скасувати";
+          cancelButton.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            try {
+              await api(`/api/jobs/${job.id}/cancel`, {
+                method: "POST",
+                body: "{}"
+              });
+              await refreshJobs();
+              setStatus(jobStatus, "Завдання зупинено.", "warning");
+            } catch (error) {
+              setStatus(jobStatus, error.message, "error");
+            }
+          });
+          li.appendChild(cancelButton);
+        }
+
+        jobsList.appendChild(li);
+      });
+
+      updateToast(jobs);
+    }
+
+    function showJobLogs(jobId) {
+      selectedJobId = jobId;
+      const job = latestJobs.find((item) => item.id === jobId);
+      if (!job) return;
+      logJobLabel.textContent = job.fileName || (job.startDate + " - " + job.endDate);
+      jobLogs.value = (job.logs || []).join("\n") || "Логи поки порожні";
+      jobLogs.scrollTop = jobLogs.scrollHeight;
+    }
+
+    function updateClock() {
+      const now = new Date();
+      dateTimePill.textContent = now.toLocaleString("uk-UA", {
+        dateStyle: "medium",
+        timeStyle: "medium"
+      });
+    }
+
+    async function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result || "");
+          const commaIndex = result.indexOf(",");
+          resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function refreshJobs() {
+      const data = await api("/api/jobs", { method: "GET" });
+      renderJobs(data.jobs || []);
+
+      const targetJob = selectedJobId
+        ? (data.jobs || []).find((job) => job.id === selectedJobId)
+        : (data.jobs || [])[0];
+
+      if (targetJob) {
+        showJobLogs(targetJob.id);
+      }
+
+      const activeJob = (data.jobs || []).find((job) => job.status === "running" || job.status === "queued");
+      if (activeJob) {
+        setStatus(jobStatus, (activeJob.statusText || "Триває обробка") + " [" + (activeJob.progress || 0) + "%]", activeJob.status === "queued" ? "warning" : "");
+        stopBtn.disabled = false;
+      } else {
+        stopBtn.disabled = true;
+      }
+    }
+
+    async function loadMeta() {
+      const data = await api("/api/meta", { method: "GET" });
+      fillSettings(data.settings);
+      startDate.value = data.firstSheetInput || "";
+      endDate.value = data.lastSheetInput || "";
+
+      if (data.availableSheets.length) {
+        sheetRangeText.innerHTML = "<strong>Доступний діапазон:</strong> " + data.firstSheet + " - " + data.lastSheet;
+        renderSimpleList(sheetList, data.availableSheets.slice(-20).reverse());
+      } else {
+        sheetRangeText.textContent = "Аркуші у форматі ДД.ММ.ГГГГ не знайдені.";
+        renderSimpleList(sheetList, []);
+      }
+
+      renderJobs(data.jobs || []);
+      if ((data.jobs || []).length) {
+        showJobLogs(selectedJobId || data.jobs[0].id);
+      } else {
+        logJobLabel.textContent = "Немає активного завдання";
+        jobLogs.value = "Логи з'являться після запуску першого завдання.";
+      }
+
+      setStatus(jobStatus, "Панель готова. Оберіть діапазон дат і запустіть завдання.", "");
+      stopBtn.disabled = !(data.jobs || []).some((job) => job.status === "running" || job.status === "queued");
+    }
+
+    function startPolling() {
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(() => {
+        refreshJobs().catch((error) => setStatus(jobStatus, error.message, "error"));
+      }, 3000);
+    }
+
+    async function checkSession() {
+      const data = await api("/api/session", { method: "GET" });
+      if (!data.authenticated) {
+        loginOverlay.classList.remove("hidden");
+        return;
+      }
+
+      loginOverlay.classList.add("hidden");
+      currentUser.textContent = data.username || "-";
+      await loadMeta();
+      startPolling();
+    }
+
+    openSettingsBtn.addEventListener("click", () => settingsOverlay.classList.remove("hidden"));
+    closeSettingsBtn.addEventListener("click", () => settingsOverlay.classList.add("hidden"));
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      loginBtn.disabled = true;
+      try {
+        await api("/api/login", {
+          method: "POST",
+          body: JSON.stringify({
+            username: loginUsername.value,
+            password: loginPassword.value
+          })
+        });
+        loginPassword.value = "";
+        loginStatus.classList.add("hidden");
+        await checkSession();
+      } catch (error) {
+        setStatus(loginStatus, error.message, "error");
+      } finally {
+        loginBtn.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await api("/api/logout", { method: "POST", body: "{}" });
+      loginOverlay.classList.remove("hidden");
+      settingsOverlay.classList.add("hidden");
+      if (pollTimer) clearInterval(pollTimer);
+    });
+
+    settingsForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const uploadedFile = keyUpload.files[0];
+      let uploadedKeyFileContent = "";
+      let uploadedKeyFileName = "";
+
+      try {
+        if (uploadedFile) {
+          uploadedKeyFileContent = await readFileAsBase64(uploadedFile);
+          uploadedKeyFileName = uploadedFile.name;
+        }
+
+        const data = await api("/api/settings", {
+          method: "POST",
+          body: JSON.stringify({
+            appAuth: {
+              username: appUsername.value,
+              password: appPassword.value
+            },
+            paylink: {
+              baseUrl: paylinkBaseUrl.value,
+              login: paylinkLogin.value,
+              password: paylinkPassword.value
+            },
+            google: {
+              spreadsheetUrl: spreadsheetUrl.value,
+              keyFile: keyFile.value,
+              uploadedKeyFileContent,
+              uploadedKeyFileName
+            },
+            output: {
+              resultDir: resultDir.value,
+              defaultFileName: defaultFileName.value
+            },
+            browser: {
+              headless: browserHeadless.checked
+            }
+          })
+        });
+
+        fillSettings(data.settings);
+        keyUpload.value = "";
+        setStatus(settingsStatus, "Налаштування збережено.", "success");
+        await loadMeta();
+      } catch (error) {
+        setStatus(settingsStatus, error.message, "error");
+      }
+    });
+
+    jobForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      runBtn.disabled = true;
+
+      try {
+        const data = await api("/api/jobs", {
+          method: "POST",
+          body: JSON.stringify({
+            startDate: startDate.value,
+            endDate: endDate.value,
+            fileName: fileName.value
+          })
+        });
+
+        setStatus(jobStatus, "Завдання відправлено у чергу. Логи та статус вже оновлюються в реальному часі.", "success");
+        renderJobs([data.job, ...latestJobs].slice(0, 20));
+        showJobLogs(data.job.id);
+        await refreshJobs();
+      } catch (error) {
+        setStatus(jobStatus, error.message, "error");
+      } finally {
+        runBtn.disabled = false;
+      }
+    });
+
+    refreshBtn.addEventListener("click", async () => {
+      try {
+        await loadMeta();
+      } catch (error) {
+        setStatus(jobStatus, error.message, "error");
+      }
+    });
+
+    stopBtn.addEventListener("click", async () => {
+      const activeJob = latestJobs.find((job) => job.status === "running" || job.status === "queued");
+      if (!activeJob) {
+        setStatus(jobStatus, "Немає активного завдання для зупинки.", "warning");
+        return;
+      }
+
+      stopBtn.disabled = true;
+      try {
+        await api(`/api/jobs/${activeJob.id}/cancel`, {
+          method: "POST",
+          body: "{}"
+        });
+        setStatus(jobStatus, "Зупинка запущена. Очікуємо оновлення статусу.", "warning");
+        await refreshJobs();
+      } catch (error) {
+        setStatus(jobStatus, error.message, "error");
+      } finally {
+        stopBtn.disabled = false;
+      }
+    });
+
+    updateClock();
+    setInterval(updateClock, 1000);
+    checkSession().catch((error) => setStatus(loginStatus, error.message, "error"));
+  </script>
+</body>
+</html>
