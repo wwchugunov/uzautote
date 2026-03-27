@@ -37,7 +37,7 @@ export class JobService {
   appendLog(jobId, message) {
     const job = this.getById(jobId);
     if (!job) return;
-    const timestamp = new Date().toLocaleTimeString("ru-RU");
+    const timestamp = new Date().toLocaleTimeString("uk-UA");
     job.logs.push(`[${timestamp}] ${message}`);
     if (job.logs.length > 120) {
       job.logs = job.logs.slice(-120);
@@ -69,7 +69,7 @@ export class JobService {
     const job = {
       id: crypto.randomUUID(),
       status: "queued",
-      statusText: "В очереди",
+      statusText: "У черзі",
       progress: 0,
       currentStep: 0,
       totalSteps: 0,
@@ -92,7 +92,7 @@ export class JobService {
 
     this.jobs.unshift(job);
     this.jobMap.set(job.id, job);
-    this.appendLog(job.id, "Задача создана");
+    this.appendLog(job.id, "Завдання створено");
 
     return job;
   }
@@ -102,7 +102,7 @@ export class JobService {
     this.processQueue().catch((error) => {
       this.updateJob(job.id, {
         status: "error",
-        statusText: "Ошибка",
+        statusText: "Помилка",
         error: error.message,
         finishedAt: new Date().toISOString(),
       });
@@ -152,7 +152,7 @@ export class JobService {
         endDate: normalizedEndDate,
         transactionCount: transactions.length,
         totalSteps: transactions.length,
-        statusText: "Авторизация в Paylink",
+        statusText: "Авторизація в Paylink",
         progress: 5,
       });
 
@@ -164,7 +164,7 @@ export class JobService {
       tracker.throwIfCanceled();
 
       this.updateJob(job.id, {
-        statusText: "Сохранение Excel",
+        statusText: "Збереження Excel",
         progress: 98,
       });
 
@@ -191,7 +191,7 @@ export class JobService {
       } else {
         this.updateJob(job.id, {
           status: "error",
-          statusText: "Ошибка",
+          statusText: "Помилка",
           error: error.message,
           finishedAt: new Date().toISOString(),
         });
@@ -201,7 +201,7 @@ export class JobService {
       this.activePage = null;
       this.activeBrowser = null;
       await browser.close().catch(() => {});
-      this.processQueue().catch((error) => console.error("Queue error:", error));
+      this.processQueue().catch((error) => console.error("Помилка черги:", error));
     }
   }
 

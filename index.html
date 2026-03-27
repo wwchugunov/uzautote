@@ -3,132 +3,457 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>УЗ возврат</title>
+  <title>Повернення</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #eef5ff;
-      --panel: rgba(255, 255, 255, 0.88);
-      --panel-strong: #ffffff;
-      --line: rgba(23, 74, 153, 0.12);
-      --line-strong: rgba(23, 74, 153, 0.22);
-      --text: #10213d;
-      --muted: #5d7094;
-      --blue: #175bf6;
-      --blue-strong: #0f43bb;
-      --blue-soft: #eaf1ff;
-      --success: #16744f;
-      --danger: #c03939;
-      --warning: #a56a09;
-      --shadow: 0 24px 80px rgba(16, 33, 61, 0.12);
-      --radius: 24px;
+      --bg-top: #eff5ff;
+      --bg-bottom: #e6eefc;
+      --panel: rgba(255, 255, 255, 0.68);
+      --panel-strong: rgba(255, 255, 255, 0.9);
+      --panel-dark: rgba(18, 36, 68, 0.9);
+      --line: rgba(54, 92, 156, 0.14);
+      --line-strong: rgba(54, 92, 156, 0.22);
+      --text: #10203d;
+      --muted: #617394;
+      --accent: #175bf6;
+      --accent-strong: #0d43bc;
+      --accent-soft: rgba(23, 91, 246, 0.1);
+      --success: #0f8c5d;
+      --success-soft: rgba(15, 140, 93, 0.12);
+      --warning: #c07a11;
+      --warning-soft: rgba(192, 122, 17, 0.12);
+      --danger: #d04e4e;
+      --danger-soft: rgba(208, 78, 78, 0.12);
+      --shadow-xl: 0 36px 90px rgba(10, 30, 66, 0.12);
+      --shadow-card: 0 20px 44px rgba(12, 35, 77, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "SF Pro Display", "Segoe UI Variable Display", "Inter", "Segoe UI", sans-serif;
+      font-family: "Manrope", "Segoe UI", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(87, 154, 255, 0.18), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(23, 91, 246, 0.14), transparent 28%),
-        linear-gradient(180deg, #f7fbff 0%, #eef5ff 100%);
+        radial-gradient(circle at 0% 0%, rgba(69, 129, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 100% 0%, rgba(89, 155, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 50% 100%, rgba(23, 91, 246, 0.1), transparent 38%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(91, 120, 173, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91, 120, 173, 0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0));
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto -120px -120px auto;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(23, 91, 246, 0.16) 0%, rgba(23, 91, 246, 0) 68%);
+      filter: blur(26px);
+      pointer-events: none;
     }
 
     .app {
-      width: min(1380px, calc(100% - 28px));
-      margin: 18px auto 24px;
+      width: min(1440px, calc(100% - 28px));
+      margin: 18px auto 26px;
       display: grid;
       gap: 18px;
+      position: relative;
+      z-index: 1;
     }
 
     .topbar,
-    .shell,
+    .dashboard,
     .toast {
-      border: 1px solid var(--line);
-      border-radius: 24px;
       background: var(--panel);
-      backdrop-filter: blur(18px);
-      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-xl);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .topbar {
-      padding: 16px 20px;
+      border-radius: var(--radius-xl);
+      padding: 16px 18px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 16px;
       position: sticky;
       top: 14px;
-      z-index: 5;
+      z-index: 10;
     }
 
-    .brand h1 {
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: white;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent),
+        linear-gradient(135deg, var(--accent), var(--accent-strong));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 18px 34px rgba(23, 91, 246, 0.24);
+    }
+
+    .brand-copy h1,
+    .card h3,
+    .modal h2 {
+      font-family: "Fraunces", Georgia, serif;
+    }
+
+    .brand-copy h1 {
       margin: 0;
-      font-size: clamp(26px, 4vw, 42px);
-      line-height: 0.95;
+      font-size: clamp(20px, 2.5vw, 28px);
+      line-height: 0.96;
       letter-spacing: -0.04em;
+    }
+
+    .brand-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
     }
 
     .top-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
-    .pill {
+    .pill,
+    .health-pill {
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.9);
-      padding: 10px 14px;
-      font-size: 13px;
+      background: rgba(255, 255, 255, 0.74);
       color: var(--muted);
+      min-height: 34px;
+      padding: 7px 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       white-space: nowrap;
+      font-size: 12px;
     }
 
-    .shell {
+    .pill strong,
+    .health-pill strong {
+      color: var(--text);
+    }
+
+    .health-pill-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .health-pill.ok .health-pill-label {
+      color: var(--success);
+    }
+
+    .health-pill.warn .health-pill-label {
+      color: #6f82a8;
+    }
+
+    .health-pill.bad .health-pill-label {
+      color: var(--danger);
+    }
+
+    .health-stack {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .health-pill.ok {
+      border-color: rgba(15, 140, 93, 0.22);
+      background: rgba(240, 255, 249, 0.86);
+    }
+
+    .health-pill.warn {
+      border-color: rgba(91, 120, 173, 0.16);
+      background: rgba(246, 249, 255, 0.9);
+    }
+
+    .health-pill.bad {
+      border-color: rgba(208, 78, 78, 0.2);
+      background: rgba(255, 243, 243, 0.9);
+    }
+
+    .health-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      background: rgba(114, 132, 166, 0.48);
+      box-shadow: 0 0 0 4px rgba(114, 132, 166, 0.1);
+    }
+
+    .health-pill.ok .health-dot {
+      background: var(--success);
+      box-shadow: 0 0 0 5px rgba(15, 140, 93, 0.14);
+    }
+
+    .health-pill.warn .health-dot {
+      background: #7f95bf;
+      box-shadow: 0 0 0 4px rgba(127, 149, 191, 0.12);
+    }
+
+    .health-pill.bad .health-dot {
+      background: var(--danger);
+      box-shadow: 0 0 0 5px rgba(208, 78, 78, 0.14);
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, border-color 0.18s ease;
+    }
+
+    .topbar button {
+      min-height: 34px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.56;
+      cursor: wait;
+    }
+
+    .primary {
+      color: white;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent),
+        linear-gradient(135deg, var(--accent), var(--accent-strong));
+      box-shadow: 0 18px 30px rgba(23, 91, 246, 0.22);
+    }
+
+    .secondary,
+    .ghost {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line-strong);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .ghost {
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(23, 91, 246, 0.56);
+      box-shadow: 0 0 0 4px rgba(23, 91, 246, 0.12);
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    input[type="file"] {
+      padding: 10px 12px;
+      background: rgba(233, 240, 255, 0.92);
+    }
+
+    textarea {
+      min-height: 260px;
+      resize: vertical;
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .dashboard {
+      border-radius: var(--radius-xl);
       overflow: hidden;
     }
 
     .hero {
-      padding: 28px 28px 20px;
+      padding: 28px;
       border-bottom: 1px solid var(--line);
       background:
-        linear-gradient(135deg, rgba(23, 91, 246, 0.12), rgba(255, 255, 255, 0.82)),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+        radial-gradient(circle at 0% 0%, rgba(23, 91, 246, 0.16), transparent 34%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.18)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent);
     }
 
-    .hero h2 {
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 12px;
+    }
+
+    .hero-note,
+    .hero-health {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(83, 115, 171, 0.14);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .hero-note h3,
+    .hero-health h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .hero-note p,
+    .hero-health p {
       margin: 0;
-      font-size: clamp(28px, 5vw, 54px);
-      line-height: 0.94;
-      letter-spacing: -0.05em;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .health-grid {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .health-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(245, 248, 255, 0.82);
+      border: 1px solid rgba(83, 115, 171, 0.12);
+    }
+
+    .health-row strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .health-row span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 30ch;
+      text-align: right;
+    }
+
+    .health-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .health-badge.ok {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .health-badge.warn {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+
+    .health-badge.bad {
+      background: var(--danger-soft);
+      color: var(--danger);
     }
 
     .content {
       display: grid;
-      grid-template-columns: 1.12fr 0.88fr;
+      grid-template-columns: 1.06fr 0.94fr;
+      gap: 0;
     }
 
     .column {
       padding: 22px 24px 24px;
       display: grid;
       gap: 16px;
+      align-content: start;
     }
 
     .column + .column {
       border-left: 1px solid var(--line);
-      background: rgba(245, 249, 255, 0.76);
+      background: linear-gradient(180deg, rgba(245, 248, 255, 0.78), rgba(245, 248, 255, 0.58));
     }
 
     .card {
       background: var(--panel-strong);
       border: 1px solid var(--line);
-      border-radius: 22px;
+      border-radius: var(--radius-lg);
       padding: 18px;
+      box-shadow: var(--shadow-card);
     }
 
     .card-head {
@@ -141,13 +466,15 @@
 
     .card h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 22px;
+      letter-spacing: -0.03em;
     }
 
     .card p {
       margin: 0;
       color: var(--muted);
-      line-height: 1.5;
+      line-height: 1.6;
+      font-size: 14px;
     }
 
     form {
@@ -161,8 +488,13 @@
       gap: 14px;
     }
 
-    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 
     .field {
       display: grid;
@@ -171,50 +503,19 @@
 
     .field label {
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text);
     }
 
     .hint {
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .hint a {
-      color: var(--blue-strong);
+      color: var(--accent-strong);
       text-decoration: none;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      border: 1px solid var(--line-strong);
-      border-radius: 16px;
-      padding: 13px 14px;
-      font: inherit;
-      color: var(--text);
-      background: #fff;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    input:focus,
-    textarea:focus {
-      outline: none;
-      border-color: rgba(23, 91, 246, 0.7);
-      box-shadow: 0 0 0 4px rgba(23, 91, 246, 0.12);
-    }
-
-    input[type="file"] {
-      padding: 10px 12px;
-      background: var(--blue-soft);
-    }
-
-    textarea {
-      min-height: 170px;
-      resize: vertical;
-      font-family: "SF Mono", "Menlo", monospace;
-      font-size: 12px;
     }
 
     .check {
@@ -223,39 +524,15 @@
       gap: 10px;
       padding: 13px 14px;
       border: 1px solid var(--line-strong);
-      border-radius: 16px;
-      background: #fff;
-      font-weight: 600;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.84);
+      font-weight: 700;
     }
 
     .check input {
       width: 18px;
       height: 18px;
       margin: 0;
-    }
-
-    button {
-      border: 0;
-      border-radius: 999px;
-      padding: 13px 18px;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.18s ease, opacity 0.18s ease;
-    }
-
-    button:hover:not(:disabled) { transform: translateY(-1px); }
-    button:disabled { opacity: 0.6; cursor: wait; }
-
-    .primary {
-      background: linear-gradient(135deg, var(--blue), var(--blue-strong));
-      color: white;
-    }
-
-    .secondary {
-      background: white;
-      color: var(--text);
-      border: 1px solid var(--line-strong);
     }
 
     .actions {
@@ -266,90 +543,361 @@
 
     .status {
       border: 1px solid var(--line);
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 13px 14px;
-      background: #f8fbff;
-      line-height: 1.5;
+      background: rgba(248, 251, 255, 0.9);
+      line-height: 1.6;
+      font-size: 14px;
     }
 
-    .status.success { color: var(--success); border-color: rgba(22, 116, 79, 0.22); background: rgba(232, 250, 241, 0.88); }
-    .status.error { color: var(--danger); border-color: rgba(192, 57, 57, 0.22); background: rgba(255, 239, 239, 0.94); }
-    .status.warning { color: var(--warning); border-color: rgba(165, 106, 9, 0.22); background: rgba(255, 247, 228, 0.94); }
+    .status.success {
+      color: var(--success);
+      border-color: rgba(15, 140, 93, 0.2);
+      background: rgba(238, 253, 247, 0.96);
+    }
+
+    .status.error {
+      color: var(--danger);
+      border-color: rgba(208, 78, 78, 0.2);
+      background: rgba(255, 241, 241, 0.96);
+    }
+
+    .status.warning {
+      color: var(--warning);
+      border-color: rgba(192, 122, 17, 0.2);
+      background: rgba(255, 248, 237, 0.96);
+    }
 
     .scroll {
-      max-height: 270px;
+      max-height: 360px;
       overflow: auto;
       padding-right: 6px;
     }
 
     .scroll.tall {
-      max-height: 360px;
+      max-height: 520px;
     }
 
-    .list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .stack {
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .list li {
-      border: 1px solid rgba(23, 74, 153, 0.1);
-      border-radius: 16px;
-      padding: 14px;
-      background: #f8fbff;
+    .sheet-list,
+    .search-results,
+    .jobs-cards {
+      display: grid;
+      gap: 12px;
     }
 
-    .job-head {
+    .sheet-chip {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 8px;
-      font-weight: 700;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(245, 248, 255, 0.86);
+      border: 1px solid rgba(83, 115, 171, 0.12);
+    }
+
+    .sheet-chip strong {
+      font-size: 14px;
+    }
+
+    .sheet-chip span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .job-card,
+    .search-card {
+      border: 1px solid rgba(83, 115, 171, 0.14);
+      border-radius: 22px;
+      padding: 16px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 255, 0.9));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .job-card {
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .job-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(23, 91, 246, 0.24);
+      box-shadow: 0 20px 34px rgba(17, 39, 84, 0.08);
+    }
+
+    .job-card.active {
+      border-color: rgba(23, 91, 246, 0.34);
+      box-shadow: 0 24px 42px rgba(17, 39, 84, 0.1);
+    }
+
+    .job-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .job-main {
+      display: flex;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .job-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex: 0 0 auto;
+      color: white;
+      background: linear-gradient(135deg, #4b89ff, #0f43bb);
+      box-shadow: 0 14px 22px rgba(23, 91, 246, 0.2);
+    }
+
+    .job-icon.done {
+      background: linear-gradient(135deg, #12a56b, #0f8c5d);
+      box-shadow: 0 14px 22px rgba(15, 140, 93, 0.18);
+    }
+
+    .job-icon.error {
+      background: linear-gradient(135deg, #eb6b6b, #d04e4e);
+      box-shadow: 0 14px 22px rgba(208, 78, 78, 0.18);
+    }
+
+    .job-icon.queued {
+      background: linear-gradient(135deg, #f2a63d, #c07a11);
+      box-shadow: 0 14px 22px rgba(192, 122, 17, 0.18);
+    }
+
+    .job-title {
+      min-width: 0;
+    }
+
+    .job-title strong {
+      display: block;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      margin-bottom: 5px;
+    }
+
+    .job-title span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .job-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .job-badge.queued {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+
+    .job-badge.running {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .job-badge.done {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .job-badge.error,
+    .job-badge.canceled {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .job-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .job-stat {
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(244, 248, 255, 0.9);
+      border: 1px solid rgba(83, 115, 171, 0.1);
+    }
+
+    .job-stat span {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .job-stat strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
     }
 
     .job-meta {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.55;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
-    .job-link {
-      display: inline-block;
-      margin-top: 10px;
-      color: var(--blue-strong);
-      font-weight: 700;
-      text-decoration: none;
+    .job-meta-chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(244, 248, 255, 0.92);
+      border: 1px solid rgba(83, 115, 171, 0.1);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .job-progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--muted);
     }
 
     .progress {
-      height: 10px;
+      height: 12px;
       border-radius: 999px;
       overflow: hidden;
       background: rgba(23, 91, 246, 0.1);
-      margin-top: 12px;
+      position: relative;
     }
 
     .progress span {
       display: block;
       height: 100%;
-      background: linear-gradient(90deg, var(--blue), #6da0ff);
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2c75ff 0%, #7facff 100%);
+      box-shadow: 0 0 24px rgba(23, 91, 246, 0.22);
+    }
+
+    .progress.done span {
+      background: linear-gradient(90deg, #12a56b 0%, #79d5af 100%);
+      box-shadow: 0 0 24px rgba(15, 140, 93, 0.2);
+    }
+
+    .progress.error span,
+    .progress.canceled span {
+      background: linear-gradient(90deg, #eb6b6b 0%, #f2a6a6 100%);
+      box-shadow: 0 0 24px rgba(208, 78, 78, 0.18);
+    }
+
+    .job-actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .job-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 16px 28px rgba(23, 91, 246, 0.18);
+    }
+
+    .empty-state {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px dashed rgba(83, 115, 171, 0.2);
+      background: rgba(247, 249, 255, 0.84);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .search-result-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .search-result-head strong {
+      font-size: 15px;
+    }
+
+    .search-result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .search-result-grid div {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(244, 248, 255, 0.9);
+      border: 1px solid rgba(83, 115, 171, 0.1);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .search-result-grid span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
     }
 
     .toast {
       position: sticky;
-      top: 96px;
-      z-index: 4;
+      top: 102px;
+      z-index: 8;
       padding: 16px 18px;
       display: none;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      background: linear-gradient(135deg, rgba(23, 91, 246, 0.1), rgba(255, 255, 255, 0.96));
+      border-radius: 24px;
+      background:
+        linear-gradient(135deg, rgba(23, 91, 246, 0.1), rgba(255, 255, 255, 0.94)),
+        rgba(255, 255, 255, 0.68);
     }
 
-    .toast.show { display: flex; }
+    .toast.show {
+      display: flex;
+    }
 
     .toast-title {
       font-weight: 800;
@@ -364,8 +912,8 @@
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(13, 31, 72, 0.34);
-      backdrop-filter: blur(8px);
+      background: rgba(10, 27, 60, 0.34);
+      backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -374,18 +922,18 @@
     }
 
     .modal {
-      width: min(980px, 100%);
+      width: min(1040px, 100%);
       max-height: calc(100vh - 40px);
       overflow: auto;
-      background: white;
-      border-radius: 28px;
+      border-radius: 30px;
       border: 1px solid var(--line);
-      box-shadow: var(--shadow);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow-xl);
       padding: 24px;
     }
 
     .modal.small {
-      width: min(430px, 100%);
+      width: min(450px, 100%);
     }
 
     .modal-head {
@@ -398,7 +946,8 @@
 
     .modal h2 {
       margin: 0;
-      font-size: 30px;
+      font-size: 34px;
+      line-height: 0.96;
       letter-spacing: -0.04em;
     }
 
@@ -409,19 +958,54 @@
       padding: 4px 0 10px;
     }
 
-    .hidden { display: none !important; }
-
-    @media (max-width: 1100px) {
-      .content { grid-template-columns: 1fr; }
-      .column + .column { border-left: 0; border-top: 1px solid var(--line); }
+    .hidden {
+      display: none !important;
     }
 
-    @media (max-width: 760px) {
-      .app { width: calc(100% - 16px); }
-      .topbar, .hero, .column { padding-left: 16px; padding-right: 16px; }
-      .topbar { flex-direction: column; align-items: flex-start; }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .toast { top: 136px; }
+    @media (max-width: 1200px) {
+      .hero-grid,
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .column + .column {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+    }
+
+    @media (max-width: 840px) {
+      .app {
+        width: calc(100% - 16px);
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .top-actions,
+      .health-stack {
+        width: 100%;
+      }
+
+      .grid-2,
+      .grid-3,
+      .search-result-grid,
+      .job-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .column,
+      .hero {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .toast {
+        top: 150px;
+      }
     }
   </style>
 </head>
@@ -429,12 +1013,30 @@
   <div class="app">
     <section class="topbar">
       <div class="brand">
-        <h1>УЗ возврат</h1>
+        <div class="brand-mark">UZ</div>
+        <div class="brand-copy">
+          <h1>Повернення</h1>
+        </div>
       </div>
+
       <div class="top-actions">
         <div class="pill" id="dateTimePill">--:--:--</div>
+        <div class="health-stack">
+          <div class="health-pill" id="healthTopGoogleSheets">
+            <span class="health-dot"></span>
+            <strong>Google Sheets</strong>
+          </div>
+          <div class="health-pill" id="healthTopPaylink">
+            <span class="health-dot"></span>
+            <strong>Paylink</strong>
+          </div>
+          <div class="health-pill" id="healthTopGoogleKey">
+            <span class="health-dot"></span>
+            <strong>Ключ Google</strong>
+          </div>
+        </div>
         <div class="pill">Користувач: <strong id="currentUser">-</strong></div>
-        <button class="secondary" id="openSettingsBtn" type="button">Налаштування</button>
+        <button class="ghost" id="openSettingsBtn" type="button">Налаштування</button>
         <button class="secondary" id="logoutBtn" type="button">Вийти</button>
       </div>
     </section>
@@ -447,42 +1049,81 @@
       <div class="pill" id="jobToastProgress">0%</div>
     </section>
 
-    <section class="shell">
+    <section class="dashboard">
       <div class="hero">
-        <!-- <h2>УЗ возврат</h2> -->
+        <div class="hero-grid">
+          <div class="hero-side">
+            <div class="hero-note">
+              <h3>Діапазон за замовчуванням</h3>
+              <p id="lastSheetNote">Обидві дати автоматично ставляться на останній аркуш.</p>
+            </div>
+
+            <div class="hero-health">
+              <h3>Стан системи</h3>
+              <p>Швидка перевірка доступності Google Sheets, валідності ключа та доступності Paylink.</p>
+              <div class="health-grid">
+                <div class="health-row">
+                  <div>
+                    <strong>Google Sheets</strong>
+                    <span id="healthGoogleSheetsDetail">Перевіряємо підключення...</span>
+                  </div>
+                  <div class="health-badge" id="healthGoogleSheetsBadge">Перевірка</div>
+                </div>
+                <div class="health-row">
+                  <div>
+                    <strong>Paylink</strong>
+                    <span id="healthPaylinkDetail">Перевіряємо доступність...</span>
+                  </div>
+                  <div class="health-badge" id="healthPaylinkBadge">Перевірка</div>
+                </div>
+                <div class="health-row">
+                  <div>
+                    <strong>Ключ Google</strong>
+                    <span id="healthGoogleKeyDetail">Перевіряємо key.json...</span>
+                  </div>
+                  <div class="health-badge" id="healthGoogleKeyBadge">Перевірка</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="content">
         <section class="column">
           <div class="card">
             <div class="card-head">
-              <h3>Нове завдання</h3>
+              <div>
+                <h3>Нове завдання</h3>
+                <p>Формуйте Excel по потрібному діапазону. Якщо нічого не змінювати, стартує останній аркуш.</p>
+              </div>
             </div>
+
             <form id="jobForm">
               <div class="grid-3">
                 <div class="field">
                   <label for="startDate">Дата від</label>
-                  <div class="hint">Початок діапазону аркушів. Формат аркушів у таблиці має бути `ДД.ММ.ГГГГ`.</div>
+                  <div class="hint">Початок діапазону аркушів. Формат аркушів у таблиці має бути `ДД.ММ.РРРР`.</div>
                   <input id="startDate" type="date" required>
                 </div>
 
                 <div class="field">
                   <label for="endDate">Дата до</label>
-                  <div class="hint">Кінець діапазону. Аркуші між датами будуть взяті включно.</div>
+                  <div class="hint">За замовчуванням також ставиться останній аркуш, але ви можете розширити діапазон.</div>
                   <input id="endDate" type="date" required>
                 </div>
 
                 <div class="field">
                   <label for="fileName">Назва файлу</label>
-                  <div class="hint">Можна залишити порожнім. Тоді назва згенерується автоматично з дат і часу.</div>
+                  <div class="hint">Можна залишити порожнім. Назва буде згенерована автоматично з дат і часу.</div>
                   <input id="fileName" type="text" placeholder="Наприклад: march-refunds.xlsx">
                 </div>
               </div>
 
               <div class="actions">
                 <button class="primary" id="runBtn" type="submit">Запустити у фоні</button>
-                <button class="secondary" id="refreshBtn" type="button">Оновити дані</button>
-                <button class="secondary" id="stopBtn" type="button">Зупинити генерацію</button>
+                <button class="ghost" id="refreshBtn" type="button">Оновити панель</button>
+                <button class="secondary" id="stopBtn" type="button">Зупинити активне</button>
               </div>
             </form>
 
@@ -491,7 +1132,41 @@
 
           <div class="card">
             <div class="card-head">
-              <h3>Логи завдання</h3>
+              <div>
+                <h3>Пошук по TRANID</h3>
+              </div>
+            </div>
+
+            <form id="searchForm">
+              <div class="grid-2">
+                <div class="field">
+                  <label for="searchTranid">TRANID</label>
+                  <div class="hint">Пошук виконується по всіх аркушах таблиці, а не лише по видимому діапазону.</div>
+                  <input id="searchTranid" type="text" placeholder="Наприклад: 123456789 або IPAY_123456789">
+                </div>
+
+                <div class="field">
+                  <label for="searchResults">Результати</label>
+                  <div class="hint">Кожен збіг показує аркуш, рядок та базові дані транзакції.</div>
+                  <div class="actions" style="align-self:end;">
+                    <button class="primary" id="searchBtn" type="submit">Знайти</button>
+                    <button class="secondary" id="clearSearchBtn" type="button">Очистити</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <div id="searchStatus" class="status hidden" style="margin-top:14px;"></div>
+            <div class="scroll" style="margin-top:14px;">
+              <div class="search-results" id="searchResults">
+                <div class="empty-state">Пошук ще не запускався. Введіть `TRANID`, щоб перевірити всі аркуші.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Логи вибраного завдання</h3>
               <div class="pill" id="logJobLabel">Немає активного завдання</div>
             </div>
             <div class="scroll tall">
@@ -503,21 +1178,24 @@
         <aside class="column">
           <div class="card">
             <div class="card-head">
-              <h3>Аркуші в таблиці</h3>
+              <div>
+                <h3>Аркуші в таблиці</h3>
+                <p id="sheetRangeText">Перевіряємо діапазон Google Sheets...</p>
+              </div>
             </div>
-            <p id="sheetRangeText">Перевіряємо діапазон Google Sheets...</p>
-            <div class="scroll" style="margin-top:14px;">
-              <ul class="list" id="sheetList"></ul>
+            <div class="scroll">
+              <div class="sheet-list" id="sheetList"></div>
             </div>
           </div>
 
           <div class="card">
             <div class="card-head">
-              <h3>Черга та готові файли</h3>
+              <div>
+                <h3>Черга та готові файли</h3>
+              </div>
             </div>
-            <p>Готові файли завантажуються напряму кнопкою всередині списку.</p>
-            <div class="scroll tall" style="margin-top:14px;">
-              <ul class="list" id="jobsList"></ul>
+            <div class="scroll tall">
+              <div class="jobs-cards" id="jobsList"></div>
             </div>
           </div>
         </aside>
@@ -536,12 +1214,12 @@
       <form id="loginForm">
         <div class="field">
           <label for="loginUsername">Логін</label>
-          <div class="hint">Логін панелі, не Paylink.</div>
+          <div class="hint">Логін для входу в панель, не для Paylink.</div>
           <input id="loginUsername" type="text" autocomplete="username" required>
         </div>
         <div class="field">
           <label for="loginPassword">Пароль</label>
-          <div class="hint">Пароль панелі, не Paylink.</div>
+          <div class="hint">Пароль для входу в панель, не для Paylink.</div>
           <input id="loginPassword" type="password" autocomplete="current-password" required>
         </div>
         <button class="primary" id="loginBtn" type="submit">Увійти</button>
@@ -675,9 +1353,28 @@
     const jobLogs = document.getElementById("jobLogs");
     const logJobLabel = document.getElementById("logJobLabel");
 
+    const searchForm = document.getElementById("searchForm");
+    const searchTranid = document.getElementById("searchTranid");
+    const searchBtn = document.getElementById("searchBtn");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+    const searchStatus = document.getElementById("searchStatus");
+    const searchResults = document.getElementById("searchResults");
+
     const sheetRangeText = document.getElementById("sheetRangeText");
     const sheetList = document.getElementById("sheetList");
     const jobsList = document.getElementById("jobsList");
+
+    const lastSheetNote = document.getElementById("lastSheetNote");
+
+    const healthTopGoogleSheets = document.getElementById("healthTopGoogleSheets");
+    const healthTopPaylink = document.getElementById("healthTopPaylink");
+    const healthTopGoogleKey = document.getElementById("healthTopGoogleKey");
+    const healthGoogleSheetsBadge = document.getElementById("healthGoogleSheetsBadge");
+    const healthPaylinkBadge = document.getElementById("healthPaylinkBadge");
+    const healthGoogleKeyBadge = document.getElementById("healthGoogleKeyBadge");
+    const healthGoogleSheetsDetail = document.getElementById("healthGoogleSheetsDetail");
+    const healthPaylinkDetail = document.getElementById("healthPaylinkDetail");
+    const healthGoogleKeyDetail = document.getElementById("healthGoogleKeyDetail");
 
     const settingsForm = document.getElementById("settingsForm");
     const appUsername = document.getElementById("appUsername");
@@ -699,8 +1396,13 @@
     const jobToastProgress = document.getElementById("jobToastProgress");
 
     let pollTimer = null;
+    let healthTimer = null;
     let latestJobs = [];
     let selectedJobId = null;
+    let latestHealth = null;
+    const appBasePath = window.location.pathname === "/"
+      ? ""
+      : window.location.pathname.replace(/\/+$/, "");
 
     function setStatus(node, message, type) {
       node.textContent = message;
@@ -709,8 +1411,19 @@
       node.classList.remove("hidden");
     }
 
+    function hideStatus(node) {
+      node.classList.add("hidden");
+    }
+
+    function toAppUrl(path) {
+      if (!path) return appBasePath || "/";
+      if (/^https?:\/\//i.test(path)) return path;
+      const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+      return `${appBasePath}${normalizedPath}` || normalizedPath;
+    }
+
     function api(url, options = {}) {
-      return fetch(url, {
+      return fetch(toAppUrl(url), {
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
@@ -735,28 +1448,94 @@
       });
     }
 
-    function renderSimpleList(container, items) {
-      container.innerHTML = "";
-      if (!items.length) {
-        const li = document.createElement("li");
-        li.textContent = "Поки порожньо";
-        container.appendChild(li);
-        return;
-      }
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
 
-      items.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        container.appendChild(li);
+    function formatDateTime(value) {
+      if (!value) return "—";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "—";
+      return date.toLocaleString("uk-UA", {
+        dateStyle: "medium",
+        timeStyle: "short"
       });
+    }
+
+    function formatShortDate(value) {
+      if (!value) return "—";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "—";
+      return date.toLocaleTimeString("uk-UA", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function renderEmptyState(container, message) {
+      container.innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
     }
 
     function formatJobStatus(status) {
       if (status === "queued") return "У черзі";
-      if (status === "running") return "В роботі";
+      if (status === "running") return "У роботі";
       if (status === "done") return "Готово";
       if (status === "error") return "Помилка";
+      if (status === "canceled") return "Скасовано";
       return status || "—";
+    }
+
+    function jobIconText(status) {
+      if (status === "queued") return "Q";
+      if (status === "running") return "RUN";
+      if (status === "done") return "OK";
+      if (status === "error") return "ERR";
+      if (status === "canceled") return "STOP";
+      return "JOB";
+    }
+
+    function statusClassByHealth(item) {
+      if (!item) return "warn";
+      if (item.ok) return "ok";
+      if (item.label === "Перевірка" || item.label === "Повільна відповідь") return "warn";
+      return "bad";
+    }
+
+    function updateHealthPill(node, item, title) {
+      const mode = statusClassByHealth(item);
+      node.className = `health-pill ${mode}`;
+      node.innerHTML = `<span class="health-dot"></span><strong>${escapeHtml(title)}</strong><span class="health-pill-label">${escapeHtml(item?.label || "Перевірка")}</span>`;
+      node.title = item?.detail || "";
+    }
+
+    function updateHealthBadge(node, item) {
+      const mode = statusClassByHealth(item);
+      node.className = `health-badge ${mode}`;
+      node.textContent = item?.label || "Перевірка";
+    }
+
+    function updateSystemHealth(health) {
+      latestHealth = health || null;
+      const googleSheets = health?.googleSheets || { ok: false, label: "Перевірка", detail: "Дані ще завантажуються." };
+      const paylink = health?.paylink || { ok: false, label: "Перевірка", detail: "Дані ще завантажуються." };
+      const googleKey = health?.googleKey || { ok: false, label: "Перевірка", detail: "Дані ще завантажуються." };
+
+      updateHealthPill(healthTopGoogleSheets, googleSheets, "Google Sheets");
+      updateHealthPill(healthTopPaylink, paylink, "Paylink");
+      updateHealthPill(healthTopGoogleKey, googleKey, "Ключ Google");
+
+      updateHealthBadge(healthGoogleSheetsBadge, googleSheets);
+      updateHealthBadge(healthPaylinkBadge, paylink);
+      updateHealthBadge(healthGoogleKeyBadge, googleKey);
+
+      healthGoogleSheetsDetail.textContent = googleSheets.detail || "—";
+      healthPaylinkDetail.textContent = paylink.detail || "—";
+      healthGoogleKeyDetail.textContent = googleKey.detail || "—";
     }
 
     function fillSettings(settings) {
@@ -782,9 +1561,76 @@
       }
 
       jobToast.classList.add("show");
-      jobToastTitle.textContent = activeJob.status === "queued" ? "Завдання у черзі" : "Триває обробка";
-      jobToastText.textContent = (activeJob.statusText || "Очікування") + " • " + activeJob.startDate + " - " + activeJob.endDate;
-      jobToastProgress.textContent = (activeJob.progress || 0) + "%";
+      jobToastTitle.textContent = activeJob.status === "queued" ? "Завдання в черзі" : "Активна обробка";
+      jobToastText.textContent = `${activeJob.statusText || "Очікування"} • ${activeJob.startDate || "—"} - ${activeJob.endDate || "—"}`;
+      jobToastProgress.textContent = `${activeJob.progress || 0}%`;
+    }
+
+    function renderSheetList(items, latestSheet) {
+      if (!items.length) {
+        renderEmptyState(sheetList, "Аркуші у форматі ДД.ММ.РРРР не знайдені.");
+        return;
+      }
+
+      sheetList.innerHTML = items
+        .slice(-24)
+        .reverse()
+        .map((sheet, index) => `
+          <div class="sheet-chip">
+            <div>
+              <strong>${escapeHtml(sheet)}</strong>
+              <span>${sheet === latestSheet ? "Останній доступний аркуш" : "Аркуш таблиці"}</span>
+            </div>
+            <div class="job-badge ${sheet === latestSheet ? "done" : "running"}">
+              ${sheet === latestSheet ? "Default" : `#${index + 1}`}
+            </div>
+          </div>
+        `)
+        .join("");
+    }
+
+    function renderSearchResults(result) {
+      if (!result) {
+        renderEmptyState(searchResults, "Пошук ще не запускався. Введіть `TRANID`, щоб перевірити всі аркуші.");
+        return;
+      }
+
+      if (!result.matches?.length) {
+        renderEmptyState(
+          searchResults,
+          `Збігів для ${result.normalizedTranid || result.requestedTranid} не знайдено. Перевірено аркушів: ${result.totalSheets || 0}.`
+        );
+        return;
+      }
+
+      searchResults.innerHTML = result.matches
+        .map((item) => `
+          <div class="search-card">
+            <div class="search-result-head">
+              <strong>${escapeHtml(item.tranid)}</strong>
+              <div class="job-badge done">Знайдено</div>
+            </div>
+            <div class="search-result-grid">
+              <div>
+                <span>Аркуш</span>
+                ${escapeHtml(item.sheetName)}
+              </div>
+              <div>
+                <span>Рядок</span>
+                ${escapeHtml(item.rowNumber)}
+              </div>
+              <div>
+                <span>PAN</span>
+                ${escapeHtml(item.pan || "—")}
+              </div>
+              <div>
+                <span>Сума original / refund</span>
+                ${escapeHtml(item.amountOriginal || "—")} / ${escapeHtml(item.amountRefund || "—")}
+              </div>
+            </div>
+          </div>
+        `)
+        .join("");
     }
 
     function renderJobs(jobs) {
@@ -792,40 +1638,80 @@
       jobsList.innerHTML = "";
 
       if (!jobs.length) {
-        renderSimpleList(jobsList, []);
+        renderEmptyState(jobsList, "Ще немає запущених або завершених завдань. Після старту вони з’являться тут у вигляді карток.");
+        updateToast([]);
         return;
       }
 
       jobs.forEach((job) => {
-        const li = document.createElement("li");
         const progress = Math.max(0, Math.min(100, Number(job.progress || 0)));
-        li.innerHTML =
-          '<div class="job-head"><span>' + job.startDate + ' - ' + job.endDate + '</span><span>' + formatJobStatus(job.status) + '</span></div>' +
-          '<div class="job-meta">' +
-            'Статус: ' + (job.statusText || "—") + '<br>' +
-            'Транзакцій: ' + (job.transactionCount || 0) + '<br>' +
-            'Аркуші: ' + (job.selectedSheets?.length ? job.selectedSheets.join(", ") : "ще не вибрані") +
-            (job.fileName ? '<br>Файл: ' + job.fileName : "") +
-            (job.error ? '<br>Помилка: ' + job.error : "") +
-          '</div>' +
-          '<div class="progress"><span style="width:' + progress + '%"></span></div>';
+        const card = document.createElement("div");
+        const statusClass = job.status || "queued";
+        card.className = `job-card${selectedJobId === job.id ? " active" : ""}`;
+        card.innerHTML = `
+          <div class="job-card-head">
+            <div class="job-main">
+              <div class="job-icon ${escapeHtml(statusClass)}">${escapeHtml(jobIconText(statusClass))}</div>
+              <div class="job-title">
+                <strong>${escapeHtml(job.fileName || `${job.startDate || "—"} - ${job.endDate || "—"}`)}</strong>
+                <span>${escapeHtml(job.statusText || "Без статусу")}</span>
+              </div>
+            </div>
+            <div class="job-badge ${escapeHtml(statusClass)}">${escapeHtml(formatJobStatus(statusClass))}</div>
+          </div>
 
-        li.addEventListener("click", () => showJobLogs(job.id));
+          <div class="job-stats">
+            <div class="job-stat">
+              <span>Діапазон</span>
+              <strong>${escapeHtml(job.startDate || "—")} - ${escapeHtml(job.endDate || "—")}</strong>
+            </div>
+            <div class="job-stat">
+              <span>Транзакцій</span>
+              <strong>${escapeHtml(job.transactionCount || 0)}</strong>
+            </div>
+            <div class="job-stat">
+              <span>Старт</span>
+              <strong>${escapeHtml(formatDateTime(job.startedAt || job.createdAt))}</strong>
+            </div>
+            <div class="job-stat">
+              <span>Фініш</span>
+              <strong>${escapeHtml(formatDateTime(job.finishedAt))}</strong>
+            </div>
+          </div>
+
+          <div class="job-meta">
+            <div class="job-meta-chip">Аркуші: ${escapeHtml(job.selectedSheets?.length ? job.selectedSheets.join(", ") : "ще не вибрано")}</div>
+            <div class="job-meta-chip">Користувач: ${escapeHtml(job.requestedBy || "—")}</div>
+            <div class="job-meta-chip">Оновлення: ${escapeHtml(formatShortDate(job.finishedAt || job.startedAt || job.createdAt))}</div>
+          </div>
+
+          ${job.error ? `<div class="status error" style="margin-bottom:12px;">${escapeHtml(job.error)}</div>` : ""}
+
+          <div class="job-progress-label">
+            <span>Прогрес</span>
+            <strong>${escapeHtml(progress)}%</strong>
+          </div>
+          <div class="progress ${escapeHtml(statusClass)}"><span style="width:${progress}%"></span></div>
+        `;
+
+        card.addEventListener("click", () => showJobLogs(job.id));
+
+        const actions = document.createElement("div");
+        actions.className = "job-actions";
 
         if (job.downloadUrl) {
           const link = document.createElement("a");
           link.className = "job-link";
-          link.href = job.downloadUrl;
+          link.href = toAppUrl(job.downloadUrl);
           link.textContent = "Завантажити файл";
           link.addEventListener("click", (event) => event.stopPropagation());
-          li.appendChild(link);
+          actions.appendChild(link);
         }
 
         if (job.status === "queued" || job.status === "running") {
           const cancelButton = document.createElement("button");
           cancelButton.type = "button";
           cancelButton.className = "secondary";
-          cancelButton.style.marginTop = "10px";
           cancelButton.textContent = job.status === "running" ? "Зупинити" : "Скасувати";
           cancelButton.addEventListener("click", async (event) => {
             event.stopPropagation();
@@ -840,10 +1726,14 @@
               setStatus(jobStatus, error.message, "error");
             }
           });
-          li.appendChild(cancelButton);
+          actions.appendChild(cancelButton);
         }
 
-        jobsList.appendChild(li);
+        if (actions.children.length) {
+          card.appendChild(actions);
+        }
+
+        jobsList.appendChild(card);
       });
 
       updateToast(jobs);
@@ -851,9 +1741,10 @@
 
     function showJobLogs(jobId) {
       selectedJobId = jobId;
+      renderJobs(latestJobs);
       const job = latestJobs.find((item) => item.id === jobId);
       if (!job) return;
-      logJobLabel.textContent = job.fileName || (job.startDate + " - " + job.endDate);
+      logJobLabel.textContent = job.fileName || `${job.startDate || "—"} - ${job.endDate || "—"}`;
       jobLogs.value = (job.logs || []).join("\n") || "Логи поки порожні";
       jobLogs.scrollTop = jobLogs.scrollHeight;
     }
@@ -879,6 +1770,32 @@
       });
     }
 
+    async function refreshHealth() {
+      try {
+        const data = await api("/api/health", { method: "GET" });
+        updateSystemHealth(data.health);
+      } catch (error) {
+        updateSystemHealth({
+          googleSheets: {
+            ok: false,
+            label: "Недоступно",
+            detail: error.message || "Не вдалося оновити статус Google Sheets.",
+          },
+          paylink: {
+            ok: false,
+            label: "Недоступно",
+            detail: error.message || "Не вдалося оновити статус Paylink.",
+          },
+          googleKey: {
+            ok: false,
+            label: "Недоступно",
+            detail: error.message || "Не вдалося оновити статус ключа Google.",
+          },
+        });
+        throw error;
+      }
+    }
+
     async function refreshJobs() {
       const data = await api("/api/jobs", { method: "GET" });
       renderJobs(data.jobs || []);
@@ -893,7 +1810,11 @@
 
       const activeJob = (data.jobs || []).find((job) => job.status === "running" || job.status === "queued");
       if (activeJob) {
-        setStatus(jobStatus, (activeJob.statusText || "Триває обробка") + " [" + (activeJob.progress || 0) + "%]", activeJob.status === "queued" ? "warning" : "");
+        setStatus(
+          jobStatus,
+          `${activeJob.statusText || "Триває обробка"} [${activeJob.progress || 0}%]`,
+          activeJob.status === "queued" ? "warning" : ""
+        );
         stopBtn.disabled = false;
       } else {
         stopBtn.disabled = true;
@@ -903,15 +1824,24 @@
     async function loadMeta() {
       const data = await api("/api/meta", { method: "GET" });
       fillSettings(data.settings);
-      startDate.value = data.firstSheetInput || "";
-      endDate.value = data.lastSheetInput || "";
+      updateSystemHealth(data.health);
+      setTimeout(() => {
+        refreshHealth().catch(() => {});
+      }, 50);
+
+      if (!startDate.value) startDate.value = data.lastSheetInput || "";
+      if (!endDate.value) endDate.value = data.lastSheetInput || "";
+
+      lastSheetNote.textContent = data.lastSheet
+        ? `Поточний останній аркуш: ${data.lastSheet}.`
+        : "Аркуші з датами поки не знайдені.";
 
       if (data.availableSheets.length) {
-        sheetRangeText.innerHTML = "<strong>Доступний діапазон:</strong> " + data.firstSheet + " - " + data.lastSheet;
-        renderSimpleList(sheetList, data.availableSheets.slice(-20).reverse());
+        sheetRangeText.innerHTML = `<strong>Доступний діапазон:</strong> ${escapeHtml(data.firstSheet)} - ${escapeHtml(data.lastSheet)}`;
+        renderSheetList(data.availableSheets, data.lastSheet);
       } else {
-        sheetRangeText.textContent = "Аркуші у форматі ДД.ММ.ГГГГ не знайдені.";
-        renderSimpleList(sheetList, []);
+        sheetRangeText.textContent = "Аркуші у форматі ДД.ММ.РРРР не знайдені.";
+        renderSheetList([], "");
       }
 
       renderJobs(data.jobs || []);
@@ -922,15 +1852,21 @@
         jobLogs.value = "Логи з'являться після запуску першого завдання.";
       }
 
-      setStatus(jobStatus, "Панель готова. Оберіть діапазон дат і запустіть завдання.", "");
+      setStatus(jobStatus, "Панель готова. Можна запускати завдання або шукати TRANID.", "");
       stopBtn.disabled = !(data.jobs || []).some((job) => job.status === "running" || job.status === "queued");
     }
 
     function startPolling() {
       if (pollTimer) clearInterval(pollTimer);
+      if (healthTimer) clearInterval(healthTimer);
+
       pollTimer = setInterval(() => {
         refreshJobs().catch((error) => setStatus(jobStatus, error.message, "error"));
       }, 3000);
+
+      healthTimer = setInterval(() => {
+        refreshHealth().catch(() => {});
+      }, 20000);
     }
 
     async function checkSession() {
@@ -961,7 +1897,9 @@
           })
         });
         loginPassword.value = "";
-        loginStatus.classList.add("hidden");
+        hideStatus(loginStatus);
+        startDate.value = "";
+        endDate.value = "";
         await checkSession();
       } catch (error) {
         setStatus(loginStatus, error.message, "error");
@@ -975,6 +1913,7 @@
       loginOverlay.classList.remove("hidden");
       settingsOverlay.classList.add("hidden");
       if (pollTimer) clearInterval(pollTimer);
+      if (healthTimer) clearInterval(healthTimer);
     });
 
     settingsForm.addEventListener("submit", async (event) => {
@@ -1040,7 +1979,7 @@
           })
         });
 
-        setStatus(jobStatus, "Завдання відправлено у чергу. Логи та статус вже оновлюються в реальному часі.", "success");
+        setStatus(jobStatus, "Завдання відправлено у чергу. Картка вже з’явилась у списку праворуч.", "success");
         renderJobs([data.job, ...latestJobs].slice(0, 20));
         showJobLogs(data.job.id);
         await refreshJobs();
@@ -1049,6 +1988,37 @@
       } finally {
         runBtn.disabled = false;
       }
+    });
+
+    searchForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const value = searchTranid.value.trim();
+      if (!value) {
+        setStatus(searchStatus, "Вкажіть TRANID для пошуку.", "warning");
+        renderSearchResults(null);
+        return;
+      }
+
+      searchBtn.disabled = true;
+      try {
+        const data = await api(`/api/search/transaction?tranid=${encodeURIComponent(value)}`, { method: "GET" });
+        renderSearchResults(data);
+        if (data.matches?.length) {
+          setStatus(searchStatus, `Знайдено збігів: ${data.matches.length}. Перевірено аркушів: ${data.totalSheets}.`, "success");
+        } else {
+          setStatus(searchStatus, `Збігів не знайдено. Перевірено аркушів: ${data.totalSheets}.`, "warning");
+        }
+      } catch (error) {
+        setStatus(searchStatus, error.message, "error");
+      } finally {
+        searchBtn.disabled = false;
+      }
+    });
+
+    clearSearchBtn.addEventListener("click", () => {
+      searchTranid.value = "";
+      hideStatus(searchStatus);
+      renderSearchResults(null);
     });
 
     refreshBtn.addEventListener("click", async () => {
@@ -1083,6 +2053,7 @@
 
     updateClock();
     setInterval(updateClock, 1000);
+    renderSearchResults(null);
     checkSession().catch((error) => setStatus(loginStatus, error.message, "error"));
   </script>
 </body>

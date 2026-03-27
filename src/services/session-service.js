@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { SESSION_COOKIE } from "../config.js";
+import { SESSION_COOKIE, SESSION_COOKIE_PATH } from "../config.js";
 import { getCookieMap } from "../utils/http.js";
 
 export class SessionService {
@@ -27,10 +27,10 @@ export class SessionService {
   }
 
   getSessionCookie(token) {
-    return `${SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Lax`;
+    return `${SESSION_COOKIE}=${token}; HttpOnly; Path=${SESSION_COOKIE_PATH}; SameSite=Lax`;
   }
 
   getExpiredSessionCookie() {
-    return `${SESSION_COOKIE}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax`;
+    return `${SESSION_COOKIE}=; HttpOnly; Path=${SESSION_COOKIE_PATH}; Max-Age=0; SameSite=Lax`;
   }
 }

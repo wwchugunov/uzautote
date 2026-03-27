@@ -13,7 +13,7 @@ export function readRequestBody(request) {
     request.on("data", (chunk) => {
       body += chunk;
       if (body.length > 10_000_000) {
-        reject(new Error("Слишком большой запрос."));
+        reject(new Error("Надто великий запит."));
       }
     });
 

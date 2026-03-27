@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import fs from "fs";
 import { formatDateForInput, formatDateForSheet, parseSheetDate } from "../utils/date.js";
 import { parseSpreadsheetId } from "../utils/spreadsheet.js";
 import { toAbsolutePath } from "../utils/fs.js";
@@ -9,6 +10,13 @@ function formatAmountValue(rawValue) {
   const numeric = Number.parseFloat(normalized);
   if (Number.isNaN(numeric)) return "";
   return (numeric / 100).toFixed(2).replace(".", ",");
+}
+
+function normalizeTranid(value) {
+  return String(value || "")
+    .trim()
+    .replace(/^IPAY_/i, "")
+    .toUpperCase();
 }
 
 function getAvailableDateSheets(sheetsList) {
@@ -24,18 +32,18 @@ function getAvailableDateSheets(sheetsList) {
 
 function getSheetNamesByRange(availableSheets, startDateRaw, endDateRaw) {
   if (!startDateRaw || !endDateRaw) {
-    throw new Error("Нужно указать обе даты диапазона.");
+    throw new Error("Потрібно вказати обидві дати діапазону.");
   }
 
   const startDate = parseSheetDate(startDateRaw);
   const endDate = parseSheetDate(endDateRaw);
 
   if (!startDate || !endDate) {
-    throw new Error("Даты должны быть в формате ДД.ММ.ГГГГ.");
+    throw new Error("Дати мають бути у форматі ДД.ММ.РРРР.");
   }
 
   if (startDate > endDate) {
-    throw new Error("Дата 'с' не может быть позже даты 'по'.");
+    throw new Error("Дата 'від' не може бути пізнішою за дату 'до'.");
   }
 
   const sheetNames = availableSheets
@@ -87,15 +95,109 @@ export class GoogleSheetsService {
     };
   }
 
+  async getHealth(settings) {
+    const keyFilePath = toAbsolutePath(settings.google.keyFile);
+    const health = {
+      googleSheets: {
+        ok: false,
+        label: "Недоступно",
+        detail: "Не вдалося підключитися до Google Sheets.",
+      },
+      googleKey: {
+        ok: false,
+        label: "Недійсний",
+        detail: "Ключ Google не перевірено.",
+      },
+    };
+
+    if (!keyFilePath || !fs.existsSync(keyFilePath)) {
+      health.googleKey.detail = "Файл key.json не знайдено.";
+      return health;
+    }
+
+    try {
+      const auth = new google.auth.GoogleAuth({
+        keyFile: keyFilePath,
+        scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+      });
+
+      await auth.getClient();
+      health.googleKey.ok = true;
+      health.googleKey.label = "Валідний";
+      health.googleKey.detail = "Сервісний ключ Google читається коректно.";
+    } catch (error) {
+      health.googleKey.detail = error.message;
+      return health;
+    }
+
+    try {
+      const { sheetsList } = await this.getSpreadsheetSheets(settings);
+      health.googleSheets.ok = true;
+      health.googleSheets.label = "Доступно";
+      health.googleSheets.detail = `Підключення успішне, аркушів: ${sheetsList.length}.`;
+    } catch (error) {
+      health.googleSheets.detail = error.message;
+    }
+
+    return health;
+  }
+
+  async searchTransaction(settings, inputTranid) {
+    const requestedTranid = String(inputTranid || "").trim();
+    if (!requestedTranid) {
+      throw new Error("Вкажіть TRANID для пошуку.");
+    }
+
+    const normalizedTarget = normalizeTranid(requestedTranid);
+    const { sheets, spreadsheetId, sheetsList } = await this.getSpreadsheetSheets(settings);
+    const sheetNames = (sheetsList || [])
+      .map((sheet) => sheet.properties?.title || "")
+      .filter(Boolean);
+
+    const matches = [];
+
+    for (const [index, sheetName] of sheetNames.entries()) {
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: `${sheetName}!A:D`,
+      });
+
+      const rows = response.data.values || [];
+      for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
+        const [tranid, pan, amountOriginalRaw, amountRefundRaw] = rows[rowIndex] || [];
+        if (!tranid) continue;
+
+        if (normalizeTranid(tranid) !== normalizedTarget) continue;
+
+        matches.push({
+          sheetName,
+          sheetOrder: index + 1,
+          rowNumber: rowIndex + 1,
+          tranid: `IPAY_${normalizeTranid(tranid)}`,
+          pan: pan || "",
+          amountOriginal: formatAmountValue(amountOriginalRaw),
+          amountRefund: formatAmountValue(amountRefundRaw),
+        });
+      }
+    }
+
+    return {
+      requestedTranid: requestedTranid.toUpperCase(),
+      normalizedTranid: `IPAY_${normalizedTarget}`,
+      matches,
+      totalSheets: sheetNames.length,
+    };
+  }
+
   async readRange({ settings, startDate, endDate, jobTracker }) {
-    jobTracker.update({ statusText: "Чтение данных из Google Sheets..." });
+    jobTracker.update({ statusText: "Читання даних із Google Sheets..." });
     jobTracker.throwIfCanceled();
 
     const { sheets, spreadsheetId, sheetsList } = await this.getSpreadsheetSheets(settings);
     const availableSheets = getAvailableDateSheets(sheetsList);
 
     if (!availableSheets.length) {
-      throw new Error("В таблице не найдено листов с датами в формате ДД.ММ.ГГГГ.");
+      throw new Error("У таблиці не знайдено аркушів із датами у форматі ДД.ММ.РРРР.");
     }
 
     const { sheetNames, normalizedStartDate, normalizedEndDate } = getSheetNamesByRange(
@@ -105,7 +207,7 @@ export class GoogleSheetsService {
     );
 
     if (!sheetNames.length) {
-      throw new Error(`Не найдено листов в диапазоне ${normalizedStartDate} - ${normalizedEndDate}.`);
+      throw new Error(`Не знайдено аркушів у діапазоні ${normalizedStartDate} - ${normalizedEndDate}.`);
     }
 
     let rows = [];
@@ -113,7 +215,7 @@ export class GoogleSheetsService {
     for (const [index, sheetName] of sheetNames.entries()) {
       jobTracker.throwIfCanceled();
       jobTracker.update({
-        statusText: `Чтение листа ${sheetName} (${index + 1}/${sheetNames.length})`,
+        statusText: `Читання аркуша ${sheetName} (${index + 1}/${sheetNames.length})`,
         selectedSheets: sheetNames,
       });
 
@@ -151,7 +253,7 @@ export class GoogleSheetsService {
       transactions.push({ row: index + 1, tranid: formattedTranid });
     }
 
-    jobTracker.log(`Найдено транзакций: ${transactions.length}`);
+    jobTracker.log(`Знайдено транзакцій: ${transactions.length}`);
 
     return {
       data,

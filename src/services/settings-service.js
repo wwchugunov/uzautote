@@ -75,27 +75,27 @@ export class SettingsService {
     };
 
     if (!nextSettings.appAuth.username || !nextSettings.appAuth.password) {
-      throw new Error("Для входа в приложение нужны логин и пароль.");
+      throw new Error("Для входу в застосунок потрібні логін і пароль.");
     }
 
     if (!nextSettings.paylink.baseUrl || !nextSettings.paylink.login || !nextSettings.paylink.password) {
-      throw new Error("Заполните URL, логин и пароль Paylink.");
+      throw new Error("Заповніть URL, логін і пароль Paylink.");
     }
 
     if (!nextSettings.google.spreadsheetUrl) {
-      throw new Error("Укажите полную ссылку на Google Sheets.");
+      throw new Error("Укажіть повне посилання на Google Sheets.");
     }
 
     if (!parseSpreadsheetId(nextSettings.google.spreadsheetUrl)) {
-      throw new Error("Не удалось распознать ссылку на Google Sheets.");
+      throw new Error("Не вдалося розпізнати посилання на Google Sheets.");
     }
 
     if (!nextSettings.google.keyFile) {
-      throw new Error("Укажите путь к key.json или загрузите новый файл.");
+      throw new Error("Укажіть шлях до key.json або завантажте новий файл.");
     }
 
     if (!nextSettings.output.resultDir) {
-      throw new Error("Укажите папку для результатов.");
+      throw new Error("Укажіть папку для результатів.");
     }
 
     return nextSettings;

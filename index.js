@@ -21,6 +21,7 @@ const server = createServer({
   sessionService,
   jobService,
   googleSheetsService,
+  paylinkService,
 });
 
 startServer(server);

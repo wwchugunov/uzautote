@@ -45,6 +45,46 @@ export class PaylinkService {
     return output;
   }
 
+  async getHealth(settings) {
+    const loginUrl = `${settings.paylink.baseUrl.replace(/\/$/, "")}/login.php`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const response = await fetch(loginUrl, {
+        method: "GET",
+        redirect: "manual",
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      return {
+        ok: response.status < 500,
+        label: response.status < 500 ? "Доступно" : "Недоступно",
+        detail:
+          response.status < 500
+            ? `Paylink відповів зі статусом ${response.status}.`
+            : `Paylink відповів зі статусом ${response.status}.`,
+      };
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === "AbortError") {
+        return {
+          ok: false,
+          label: "Повільна відповідь",
+          detail: "Paylink не відповів протягом 15 секунд.",
+        };
+      }
+
+      return {
+        ok: false,
+        label: "Недоступно",
+        detail: error.message,
+      };
+    }
+  }
+
   async launchBrowser(settings) {
     return puppeteer.launch({
       headless: settings.browser.headless,
@@ -106,7 +146,7 @@ export class PaylinkService {
     const baseUrl = settings.paylink.baseUrl.replace(/\/$/, "");
     const transactionsUrl = `${baseUrl}/#transactions`;
 
-    jobTracker.update({ statusText: "Открытие раздела транзакций" });
+    jobTracker.update({ statusText: "Відкриття розділу транзакцій" });
     await page.goto(transactionsUrl, { waitUntil: "domcontentloaded" });
     await delay(1500);
 
@@ -134,7 +174,7 @@ export class PaylinkService {
 
   async login(page, settings, jobTracker) {
     const loginUrl = `${settings.paylink.baseUrl.replace(/\/$/, "")}/login.php`;
-    jobTracker.update({ statusText: "Открываем страницу логина Paylink" });
+    jobTracker.update({ statusText: "Відкриваємо сторінку входу Paylink" });
 
     await page.goto(loginUrl, { waitUntil: "domcontentloaded" });
     await delay(1000);
@@ -154,7 +194,7 @@ export class PaylinkService {
     await page.type(passwordSelector, settings.paylink.password);
     await delay(500);
 
-    jobTracker.update({ statusText: "Отправка логина и пароля Paylink" });
+    jobTracker.update({ statusText: "Надсилання логіна й пароля Paylink" });
 
     await page.click("#auth-button");
     await Promise.race([
@@ -172,12 +212,12 @@ export class PaylinkService {
     try {
       await this.login(page, settings, jobTracker);
       await this.waitForTransactionInput(page, 30000);
-      jobTracker.log("Авторизация в Paylink успешна");
+      jobTracker.log("Авторизація в Paylink успішна");
       return page;
     } catch (error) {
       const debug = await this.saveDebugArtifacts(page, jobTracker.job.id, "auth-failed");
       throw new Error(
-        `Не удалось открыть страницу транзакций. Debug: ${debug.screenshotPath}, ${debug.htmlPath}. Причина: ${error.message}`
+        `Не вдалося відкрити сторінку транзакцій. Дані діагностики: ${debug.screenshotPath}, ${debug.htmlPath}. Причина: ${error.message}`
       );
     }
   }
@@ -191,7 +231,7 @@ export class PaylinkService {
         currentStep: index + 1,
         totalSteps: transactions.length,
         progress: transactions.length ? Math.round(((index + 1) / transactions.length) * 100) : 0,
-        statusText: `Обработка ${tranid} (${index + 1}/${transactions.length})`,
+        statusText: `Обробка ${tranid} (${index + 1}/${transactions.length})`,
       });
 
       try {
@@ -213,7 +253,7 @@ export class PaylinkService {
           data[index + 1][0] = "—";
           data[index + 1][1] = "—";
           data[index + 1][6] = "—";
-          jobTracker.log(`${tranid}: не найден`);
+          jobTracker.log(`${tranid}: не знайдено`);
           continue;
         }
 
@@ -258,10 +298,10 @@ export class PaylinkService {
           return !modal || getComputedStyle(modal).display === "none";
         }, { timeout: 8000 });
       } catch (error) {
-        data[index + 1][0] = "Ошибка";
-        data[index + 1][1] = "Ошибка";
-        data[index + 1][6] = "Ошибка";
-        jobTracker.log(`${tranid}: ошибка ${error.message}`);
+        data[index + 1][0] = "Помилка";
+        data[index + 1][1] = "Помилка";
+        data[index + 1][6] = "Помилка";
+        jobTracker.log(`${tranid}: помилка ${error.message}`);
         await delay(500);
       }
     }
